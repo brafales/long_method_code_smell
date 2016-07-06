@@ -4,12 +4,7 @@ class Checkout
 
     if (authorize_money_from_bank(self.card_amount) &&
         debit_funds_from_user(self.user_funds_amount))
-      self.state = "completed"
-
-      email = Email.new(:checkout_completed, checkout: self)
-      email.send
-
-      MONITOR.increment(:checkout_completed)
+      post_completed_actions
     else
       redirect_to_payment_error_page
     end
@@ -24,5 +19,14 @@ class Checkout
       self.card_amount = self.total - user.customer_funds
       self.user_funds_amount = user.customer_funds
     end
+  end
+
+  def post_completed_actions
+    self.state = "completed"
+
+    email = Email.new(:checkout_completed, checkout: self)
+    email.send
+
+    MONITOR.increment(:checkout_completed)
   end
 end
