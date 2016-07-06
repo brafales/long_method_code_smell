@@ -2,8 +2,7 @@ class Checkout
   def complete_checkout
     calculate_totals
 
-    if (authorize_money_from_bank(self.card_amount) &&
-        debit_funds_from_user(self.user_funds_amount))
+    if pay
       post_completed_actions
     else
       redirect_to_payment_error_page
@@ -33,5 +32,9 @@ class Checkout
   def send_completed_email
     email = Email.new(:checkout_completed, checkout: self)
     email.send
+  end
+
+  def pay
+    authorize_money_from_bank(self.card_amount) && debit_funds_from_user(self.user_funds_amount)
   end
 end
