@@ -17,10 +17,7 @@ class Checkout
 
   def post_completed_actions
     self.state = "completed"
-
-    email = Email.new(:checkout_completed, checkout: self)
-    email.send
-
+    send_completed_email
     MONITOR.increment(:checkout_completed)
   end
 
@@ -31,5 +28,10 @@ class Checkout
       self.card_amount = self.total - user.customer_funds
       self.user_funds_amount = user.customer_funds
     end
+  end
+
+  def send_completed_email
+    email = Email.new(:checkout_completed, checkout: self)
+    email.send
   end
 end
