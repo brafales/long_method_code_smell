@@ -12,13 +12,7 @@ class Checkout
 
   def calculate_totals
     self.total = self.orders.map{|o| o.products.map(&:price).reduce(&:+)}.reduce(&:+)
-
-    self.card_amount = self.total
-    self.user_funds_amount = 0
-    if self.user.has_customer_funds?
-      self.card_amount = self.total - user.customer_funds
-      self.user_funds_amount = user.customer_funds
-    end
+    calculate_amounts_to_pay
   end
 
   def post_completed_actions
@@ -28,5 +22,14 @@ class Checkout
     email.send
 
     MONITOR.increment(:checkout_completed)
+  end
+
+  def calculate_amounts_to_pay
+    self.card_amount = self.total
+    self.user_funds_amount = 0
+    if self.user.has_customer_funds?
+      self.card_amount = self.total - user.customer_funds
+      self.user_funds_amount = user.customer_funds
+    end
   end
 end
